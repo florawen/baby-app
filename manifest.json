@@ -1,0 +1,17 @@
+{
+    "name": "Baby Zhu's Slice of Life",
+    "short_name": "Baby Zhu's Slice of Life",
+    "description": "Track feeds, diapers, sleep — and capture memories along the way.",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#f0f5f1",
+    "theme_color": "#f0f5f1",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

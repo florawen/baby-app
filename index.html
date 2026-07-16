@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f0f5f1">
+    <title>Baby Zhu's Slice of Life</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Auth Screen (Login / Register) -->
+    <div id="auth-screen" class="screen hidden">
+        <div class="welcome-content">
+            <div class="welcome-icon">🌱</div>
+            <h1 id="auth-title">Sign In</h1>
+            <p id="auth-error" class="error-text hidden"></p>
+
+            <!-- Login Form -->
+            <div id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <button id="login-btn" class="btn btn-primary btn-large">Sign In</button>
+                <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot password?</a>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <div class="form-group">
+                    <label for="register-name">Your Name</label>
+                    <input type="text" id="register-name" placeholder="e.g., Mom, Dad, Grandma" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="At least 6 characters" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="register-password-confirm">Confirm Password</label>
+                    <input type="password" id="register-password-confirm" placeholder="Confirm password" autocomplete="new-password">
+                </div>
+                <button id="register-btn" class="btn btn-primary btn-large">Create Account</button>
+            </div>
+
+            <p id="auth-toggle-text" class="toggle-text"></p>
+        </div>
+    </div>
+
+    <!-- Create Family Screen (shown after first registration if no invite) -->
+    <div id="create-family-screen" class="screen hidden">
+        <div class="welcome-content">
+            <div class="welcome-icon">👨‍👩‍👧</div>
+            <h1>Create Your Family</h1>
+            <p>Give your family a name to get started. You can invite others later.</p>
+            <div class="form-group">
+                <label for="family-name-input">Family Name</label>
+                <input type="text" id="family-name-input" placeholder="e.g., Baby Zhu's Family">
+            </div>
+            <p id="family-error" class="error-text hidden"></p>
+            <button id="create-family-btn" class="btn btn-primary btn-large">Create Family</button>
+        </div>
+    </div>
+
+    <!-- Guest Registry View -->
+    <div id="guest-registry" class="hidden">
+        <header class="app-header">
+            <h1>Baby Registry</h1>
+            <button id="guest-logout-btn" class="btn btn-small btn-secondary">Sign Out</button>
+        </header>
+        <div class="guest-registry-intro">
+            <p>Claim items you'd like to purchase. Once claimed, others will see it's taken.</p>
+        </div>
+
+        <!-- 529 Education Fund Donation -->
+        <div class="education-fund-section">
+            <div class="education-fund-card">
+                <h3>529 Education Fund</h3>
+                <p>In lieu of (or in addition to) gifts, consider contributing to baby girl's college fund. Every dollar helps build her future!</p>
+                <div class="qr-code-placeholder" id="guest-donation-qr">
+                    <div class="qr-placeholder-icon">📚</div>
+                    <p class="qr-placeholder-text">QR Code Coming Soon</p>
+                    <p class="qr-placeholder-subtext">Scan to donate to her 529 Education Fund</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="registry-list" class="registry-list"></div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 id="app-title">Baby Zhu's Slice of Life</h1>
+            <button id="settings-btn" class="btn-icon" aria-label="Settings">⚙️</button>
+        </header>
+
+        <!-- User Info Bar -->
+        <div class="user-info-bar">
+            <span class="user-display-name" id="user-display-name"></span>
+            <button id="logout-btn" class="btn btn-small btn-secondary">Sign Out</button>
+        </div>
+
+        <!-- Tab Content -->
+        <main id="tab-content">
+            <!-- Home Tab -->
+            <section id="home-tab" class="tab-panel active">
+                <div class="countdown-container">
+                    <h2 class="countdown-title">Baby Zhu-Van Swieten is coming!</h2>
+                    <div class="countdown-date">Due September 14, 2026</div>
+                    <div class="countdown-timer" id="countdown-timer">
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="countdown-days">--</span>
+                            <span class="countdown-label">days</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="countdown-hours">--</span>
+                            <span class="countdown-label">hours</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="countdown-minutes">--</span>
+                            <span class="countdown-label">min</span>
+                        </div>
+                        <div class="countdown-unit">
+                            <span class="countdown-number" id="countdown-seconds">--</span>
+                            <span class="countdown-label">sec</span>
+                        </div>
+                    </div>
+                    <div class="countdown-note">Due dates are never accurate... but why not!</div>
+                    <div class="daily-fact" id="daily-fact"></div>
+                </div>
+            </section>
+
+            <!-- Tracker Tab -->
+            <section id="tracker-tab" class="tab-panel">
+                <div class="dashboard">
+                    <div class="dashboard-card" id="last-feed">
+                        <span class="dashboard-icon">🍼</span>
+                        <span class="dashboard-label">Last Feed</span>
+                        <span class="dashboard-time">No logs yet</span>
+                    </div>
+                    <div class="dashboard-card" id="last-diaper">
+                        <span class="dashboard-icon">👶</span>
+                        <span class="dashboard-label">Last Diaper</span>
+                        <span class="dashboard-time">No logs yet</span>
+                    </div>
+                    <div class="dashboard-card" id="last-sleep">
+                        <span class="dashboard-icon">😴</span>
+                        <span class="dashboard-label">Last Sleep</span>
+                        <span class="dashboard-time">No logs yet</span>
+                    </div>
+                </div>
+
+                <div id="tracker-summary" class="tracker-summary"></div>
+
+                <div class="quick-actions">
+                    <button class="btn btn-action" data-action="feed">🍼 Feed</button>
+                    <button class="btn btn-action" data-action="diaper">👶 Diaper</button>
+                    <button class="btn btn-action" data-action="sleep">😴 Sleep</button>
+                </div>
+                <div class="manual-entry"><a href="#" id="manual-entry-link">Manual entry</a></div>
+
+                <!-- Feed Modal -->
+                <div id="feed-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>Log Feed</h2>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <div class="btn-group">
+                                <button class="btn btn-toggle active" data-feed-type="breast">Breast</button>
+                                <button class="btn btn-toggle" data-feed-type="bottle">Bottle</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="feed-time">Time</label>
+                            <input type="datetime-local" id="feed-time">
+                        </div>
+                        <div class="form-group" id="feed-duration-group">
+                            <label for="feed-duration">Duration (minutes)</label>
+                            <input type="number" id="feed-duration" min="1" max="60" placeholder="15">
+                        </div>
+                        <div class="form-group hidden" id="feed-amount-group">
+                            <label for="feed-amount">Amount (oz)</label>
+                            <input type="number" id="feed-amount" min="0.5" max="12" step="0.5" placeholder="4">
+                        </div>
+                        <div class="form-group">
+                            <label for="feed-notes">Notes (optional)</label>
+                            <input type="text" id="feed-notes" placeholder="e.g., fussy, good latch">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-feed">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diaper Modal -->
+                <div id="diaper-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>Log Diaper</h2>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <div class="btn-group">
+                                <button class="btn btn-toggle active" data-diaper-type="wet">Wet</button>
+                                <button class="btn btn-toggle" data-diaper-type="dirty">Dirty</button>
+                                <button class="btn btn-toggle" data-diaper-type="both">Both</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="diaper-time">Time</label>
+                            <input type="datetime-local" id="diaper-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="diaper-notes">Notes (optional)</label>
+                            <input type="text" id="diaper-notes" placeholder="e.g., rash, color change">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-diaper">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sleep Modal -->
+                <div id="sleep-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>Log Sleep</h2>
+                        <div class="form-group">
+                            <label for="sleep-start">Start Time</label>
+                            <input type="datetime-local" id="sleep-start">
+                        </div>
+                        <div class="form-group">
+                            <label for="sleep-end">End Time (leave blank if still sleeping)</label>
+                            <input type="datetime-local" id="sleep-end">
+                        </div>
+                        <div class="form-group">
+                            <label for="sleep-notes">Notes (optional)</label>
+                            <input type="text" id="sleep-notes" placeholder="e.g., nap, fought it, slept great">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-sleep">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="history-section">
+                    <div class="history-header">
+                        <h2>Recent Activity</h2>
+                        <button class="btn btn-small btn-secondary" id="doctor-prep-btn">Doctor Prep</button>
+                    </div>
+                    <div id="tracker-history" class="history-list">
+                        <p class="empty-state">No activity logged yet. Tap a button above to start!</p>
+                    </div>
+                </div>
+
+                <!-- Doctor Prep Modal -->
+                <div id="doctor-prep-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>7-Day Summary for Pediatrician</h2>
+                        <div id="doctor-prep-content"></div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Close</button>
+                            <button class="btn btn-primary" id="copy-doctor-prep">Copy to Clipboard</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Growth Section -->
+                <div class="growth-section">
+                    <div class="history-header">
+                        <h2>Growth</h2>
+                        <button class="btn btn-small btn-primary" id="add-growth-btn">+ Log</button>
+                    </div>
+                    <div id="growth-list" class="growth-list">
+                        <p class="empty-state">No measurements yet. Log weight, length, and head circumference from doctor visits.</p>
+                    </div>
+                </div>
+
+                <!-- Growth Modal -->
+                <div id="growth-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2>Log Measurement</h2>
+                        <div class="form-group">
+                            <label for="growth-date">Date</label>
+                            <input type="date" id="growth-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="growth-weight">Weight (lb)</label>
+                            <input type="number" id="growth-weight" step="0.1" placeholder="8.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="growth-length">Length (in)</label>
+                            <input type="number" id="growth-length" step="0.1" placeholder="20.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="growth-head">Head Circumference (in)</label>
+                            <input type="number" id="growth-head" step="0.1" placeholder="14">
+                        </div>
+                        <div class="form-group">
+                            <label for="growth-notes">Notes (optional)</label>
+                            <input type="text" id="growth-notes" placeholder="e.g., 2-week checkup">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-growth">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Village Tab -->
+            <section id="village-tab" class="tab-panel">
+                <div class="village-header">
+                    <h2>Your Village</h2>
+                    <button class="btn btn-primary btn-small" id="add-contact-btn">+ Add</button>
+                </div>
+
+                <div id="contacts-list" class="contacts-list">
+                    <p class="empty-state">Your support network goes here. Add your pediatrician, lactation consultant, or anyone you might need to reach quickly.</p>
+                </div>
+
+                <!-- Contact Modal -->
+                <div id="contact-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2 id="contact-modal-title">Add Contact</h2>
+                        <div class="form-group">
+                            <label for="contact-name">Name</label>
+                            <input type="text" id="contact-name" placeholder="Dr. Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-role">Role</label>
+                            <select id="contact-role">
+                                <option value="">Select a role...</option>
+                                <option value="Pediatrician">Pediatrician</option>
+                                <option value="OB/GYN">OB/GYN</option>
+                                <option value="Lactation Consultant">Lactation Consultant</option>
+                                <option value="Doula">Doula</option>
+                                <option value="Midwife">Midwife</option>
+                                <option value="Postpartum Therapist">Postpartum Therapist</option>
+                                <option value="Aunty">Aunty</option>
+                                <option value="Grandma">Grandma</option>
+                                <option value="Grandpa">Grandpa</option>
+                                <option value="Family">Family</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <input type="text" id="contact-role-other" class="hidden" placeholder="Enter custom role...">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Phone</label>
+                            <input type="tel" id="contact-phone" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-notes">Notes (optional)</label>
+                            <input type="text" id="contact-notes-input" placeholder="e.g., office hours, after-hours line">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-contact">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scrapbook Tab -->
+            <section id="scrapbook-tab" class="tab-panel">
+                <div class="scrapbook-header">
+                    <h2>Scrapbook</h2>
+                    <button class="btn btn-primary btn-small" id="add-photo-btn">+ Add Photo</button>
+                </div>
+
+                <div id="scrapbook-grid" class="scrapbook-grid">
+                    <p class="empty-state">A place for all the little moments. Snap a photo, add a caption, and watch the album grow.</p>
+                </div>
+
+                <!-- Lightbox -->
+                <div id="lightbox" class="lightbox hidden">
+                    <div class="lightbox-backdrop"></div>
+                    <div class="lightbox-content">
+                        <button class="lightbox-close">&times;</button>
+                        <img id="lightbox-img" src="" alt="">
+                        <div class="lightbox-caption" id="lightbox-caption"></div>
+                        <div class="lightbox-nav">
+                            <button id="lightbox-prev" class="lightbox-arrow">&larr;</button>
+                            <span id="lightbox-counter" class="lightbox-counter"></span>
+                            <button id="lightbox-next" class="lightbox-arrow">&rarr;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Upload Modal -->
+                <div id="photo-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2 id="photo-modal-title">Add Photo</h2>
+                        <div class="form-group">
+                            <label for="scrapbook-photo">Photo</label>
+                            <input type="file" id="scrapbook-photo" accept="image/*">
+                            <div id="scrapbook-photo-preview" class="photo-preview hidden"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scrapbook-caption">Caption (optional)</label>
+                            <input type="text" id="scrapbook-caption" placeholder="e.g., First bath, Tiny toes">
+                        </div>
+                        <div class="form-group">
+                            <label for="scrapbook-date">Date</label>
+                            <input type="date" id="scrapbook-date">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-photo">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journal Tab -->
+            <section id="journal-tab" class="tab-panel">
+                <div class="journal-header">
+                    <h2>Journal</h2>
+                    <span class="journal-subtitle">Capture moments big and small — you'll be glad you did.</span>
+                    <div class="journal-actions">
+                        <button class="btn btn-secondary btn-small" id="share-journal-btn">Share</button>
+                        <button class="btn btn-primary btn-small" id="new-entry-btn">+ New</button>
+                    </div>
+                </div>
+
+                <div id="journal-entries" class="journal-entries">
+                </div>
+
+                <!-- Journal Entry Modal -->
+                <div id="entry-modal" class="modal hidden">
+                    <div class="modal-content modal-large">
+                        <h2 id="entry-modal-title">New Entry</h2>
+                        <div class="form-group">
+                            <label for="entry-date">Date</label>
+                            <input type="date" id="entry-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="entry-title">Title</label>
+                            <input type="text" id="entry-title" placeholder="e.g., First smile, Week 2 thoughts">
+                        </div>
+                        <div class="form-group">
+                            <label for="entry-text">What's on your heart?</label>
+                            <textarea id="entry-text" rows="5" placeholder="Write as much or as little as you'd like..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Voice Memo (optional)</label>
+                            <div class="voice-memo-controls">
+                                <button type="button" class="btn btn-secondary btn-small" id="voice-memo-btn">
+                                    <span class="voice-memo-icon">🎙️</span> Record Memo
+                                </button>
+                                <span id="voice-memo-timer" class="voice-memo-timer hidden">0:00</span>
+                            </div>
+                            <div id="voice-memo-preview" class="voice-memo-preview hidden">
+                                <audio id="voice-memo-audio" controls></audio>
+                                <button type="button" class="btn btn-small btn-secondary" id="voice-memo-delete">Remove</button>
+                            </div>
+                            <p id="voice-memo-status" class="form-help hidden"></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="entry-photo">Photo (optional)</label>
+                            <input type="file" id="entry-photo" accept="image/*">
+                            <div id="photo-preview" class="photo-preview hidden"></div>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-entry">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stuff Tab (Inventory only) -->
+            <section id="stuff-tab" class="tab-panel">
+                <div class="stuff-header">
+                    <h2>Inventory</h2>
+                    <button class="btn btn-primary btn-small" id="add-item-btn">+ Add</button>
+                </div>
+
+                <div id="stuff-list" class="stuff-list">
+                    <p class="empty-state">No items yet. Tap + Add to start tracking what you have!</p>
+                </div>
+
+                <!-- Add/Edit Item Modal -->
+                <div id="item-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2 id="item-modal-title">Add Item</h2>
+                        <div class="form-group">
+                            <label for="item-name">Item Name</label>
+                            <input type="text" id="item-name" placeholder="e.g., Diapers (size 1)">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-category">Category</label>
+                            <select id="item-category">
+                                <option value="diapering">Diapering</option>
+                                <option value="feeding">Feeding</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="gear">Gear</option>
+                                <option value="health">Health</option>
+                                <option value="nursery">Nursery</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="item-quantity-group">
+                            <label for="item-quantity">Quantity</label>
+                            <input type="number" id="item-quantity" min="0" placeholder="e.g., 24">
+                        </div>
+                        <div class="form-group" id="item-threshold-group">
+                            <label for="item-threshold">Low stock alert (optional)</label>
+                            <input type="number" id="item-threshold" min="0" placeholder="Alert when below this number">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-notes">Notes (optional)</label>
+                            <input type="text" id="item-notes" placeholder="e.g., brand, size, where to buy">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-item">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Edit Modal (quantity adjust) -->
+                <div id="quantity-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2 id="quantity-modal-title">Update Quantity</h2>
+                        <div class="quantity-controls">
+                            <button class="btn btn-secondary quantity-btn" id="qty-minus">−</button>
+                            <span class="quantity-display" id="qty-display">0</span>
+                            <button class="btn btn-secondary quantity-btn" id="qty-plus">+</button>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-secondary" id="mark-need-more">Need More</button>
+                            <button class="btn btn-primary" id="save-quantity">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Registry Tab (family view) -->
+            <section id="registry-tab" class="tab-panel">
+                <div class="registry-tab-header">
+                    <h2>Registry</h2>
+                    <button class="btn btn-primary btn-small" id="add-registry-item-btn">+ Add</button>
+                </div>
+
+                <div class="registry-share-section">
+                    <p class="form-help">Share this link with friends so they can see your registry and claim items.</p>
+                    <button class="btn btn-secondary btn-small" id="generate-registry-link-tab-btn">Generate Link</button>
+                    <div id="registry-link-tab-container" class="invite-link-container hidden">
+                        <input type="text" id="registry-link-tab-display" readonly>
+                        <button class="btn btn-small btn-secondary" id="copy-registry-link-tab-btn">Copy</button>
+                    </div>
+                </div>
+
+                <div id="registry-starter-kit" class="registry-starter-prompt">
+                    <p>Need help getting started? Load a curated checklist of newborn essentials.</p>
+                    <button class="btn btn-secondary btn-small" id="load-starter-kit-btn">Load Starter Kit</button>
+                </div>
+
+                <!-- 529 Education Fund Donation -->
+                <div class="education-fund-section">
+                    <div class="education-fund-card">
+                        <h3>529 Education Fund</h3>
+                        <p>Share this with family & friends — they can scan to contribute to baby girl's college fund.</p>
+                        <div class="qr-code-placeholder" id="family-donation-qr">
+                            <div class="qr-placeholder-icon">📚</div>
+                            <p class="qr-placeholder-text">QR Code Coming Soon</p>
+                            <p class="qr-placeholder-subtext">Add your 529 plan donation link here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="registry-tab-list" class="registry-list"></div>
+
+                <!-- Add Registry Item Modal -->
+                <div id="registry-item-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <h2 id="registry-item-modal-title">Add to Registry</h2>
+                        <div class="form-group">
+                            <label for="registry-item-name">Item Name</label>
+                            <input type="text" id="registry-item-name" placeholder="e.g., Stroller, Car seat">
+                        </div>
+                        <div class="form-group">
+                            <label for="registry-item-category">Category</label>
+                            <select id="registry-item-category">
+                                <option value="diapering">Diapering</option>
+                                <option value="feeding">Feeding</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="gear">Gear</option>
+                                <option value="health">Health</option>
+                                <option value="nursery">Nursery</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="registry-item-notes">Notes (optional)</label>
+                            <input type="text" id="registry-item-notes" placeholder="e.g., brand preference, color">
+                        </div>
+                        <div class="form-group">
+                            <label for="registry-item-link">Link (optional)</label>
+                            <input type="url" id="registry-item-link" placeholder="https://...">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary" id="save-registry-item">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-tab="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-btn" data-tab="tracker">
+                <span class="nav-icon">🍼</span>
+                <span class="nav-label">Tracker</span>
+            </button>
+            <button class="nav-btn" data-tab="village">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Village</span>
+            </button>
+            <button class="nav-btn" data-tab="scrapbook">
+                <span class="nav-icon">📸</span>
+                <span class="nav-label">Scrapbook</span>
+            </button>
+            <button class="nav-btn" data-tab="journal">
+                <span class="nav-icon">📖</span>
+                <span class="nav-label">Journal</span>
+            </button>
+            <button class="nav-btn" data-tab="stuff">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-label">Stuff</span>
+            </button>
+            <button class="nav-btn" data-tab="registry">
+                <span class="nav-icon">🎁</span>
+                <span class="nav-label">Registry</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label>Family Members</label>
+                <div id="members-list" class="people-list"></div>
+            </div>
+            <div class="form-group">
+                <label>Invite Family</label>
+                <p class="form-help">Generate a link to invite someone to your family. Links expire after 7 days.</p>
+                <button class="btn btn-primary btn-small" id="generate-invite-btn">Generate Invite Link</button>
+                <div id="invite-link-container" class="invite-link-container hidden">
+                    <input type="text" id="invite-link-display" readonly>
+                    <button class="btn btn-small btn-secondary" id="copy-invite-btn">Copy</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Data</label>
+                <button class="btn btn-secondary btn-small" id="export-data">Export All Data</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/tracker.js"></script>
+    <script src="js/village.js"></script>
+    <script src="js/scrapbook.js"></script>
+    <script src="js/journal.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/registry.js"></script>
+    <script src="js/growth.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/voice-memo.js"></script>
+    <script src="js/demo.js"></script>
+</body>
+</html>

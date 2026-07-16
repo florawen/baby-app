@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "SETUP.md"
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
